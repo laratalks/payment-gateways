@@ -83,12 +83,12 @@ $paymenter = new Payline;
 
 try
 {
-	$paymenter->doVerify( [$_POST['trans_id'] , $_POST['id_get']);
+	$paymenter->doVerify( $_POST );
 	$order_id = $_GET['order_id'];
-	
+
 	// Check your conditions and make order completed
 	Orders::makeComleted($order_id)->setTrans($_POST['trans_id']);
-}
+} 
 catch (VerifyException $e)
 {
 	// print Lang::get($e->getMessage()); // Get message from your language files
