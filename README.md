@@ -53,7 +53,7 @@ $paymenter->setAmount(1500)
 
 header("Location: " . $paymenter) ; // User goes to provider site and pays
 ```
-### Request a paymeny with handling errors
+### Request a payment with handling errors
 
 ```sh
 <?php
