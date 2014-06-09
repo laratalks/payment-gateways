@@ -1,7 +1,7 @@
 Parsi Payment 
 =========
 
-Parsi Payment Package is a highly testable , flexible and resuable PHP Composer Package for working with Iraninian payment service providers like Payline , Zarinpal, Parspal and Jahanpay.
+Parsi Payment Package is a highly testable , flexible and resuable PHP Composer Package for working with Iranian payment service providers like Payline , Zarinpal, Parspal and Jahanpay.
 
 Connecting to Payment web services may be easy but testing and error handling needs bunch of coding that may depend on your application domain scope. with Parsi Payment you can easily solve this problem in an OO way:
 
