@@ -42,7 +42,7 @@ try
 	$paymenter->setAmount(15000);
 	$paymenter->setRedirect("http://mysite.com/payment/complete?order_id=255");
 
-	header("Location: " . $paymenter->getPaymentUrl(););
+	header("Location: " . $paymenter->getPaymentUrl());
 
 }
 catch (ParsiPaymentException $e)
