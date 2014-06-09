@@ -70,6 +70,47 @@ catch (ParsiPaymentException $e)
 }
 
 ```
+
+### Verify a payment with handling errors
+
+```sh
+<?php
+
+use Bigsinoos\ParsiPayment\PaymentProcessors\Payline;
+use Bigsinoos\ParsiPayment\Exceptions;
+
+$paymenter = new Payline;
+
+try
+{
+	$paymenter->doVerify( [$_POST['trans_id'] , $_POST['id_get']);
+	$order_id = $_GET['order_id'];
+	
+	// Check your conditions and make order completed
+	Orders::makeComleted($order_id)->setTrans($_POST['trans_id']);
+}
+catch (VerifyException $e)
+{
+	// print Lang::get($e->getMessage()); // Get message from your language files
+	// Orders::flagIncmpleted( $_GET['order_id'] );
+	
+	switch ( $e->getMessage() )
+	{
+		case $paymenter::INVALID_TRANS:
+			Orders::getOrder($_GET['order_id'])->setStatus('incomplete');
+			print "شماره تراکنش شما نا معتبر است لطفا با مسول سایت تماس بگیرید";
+
+		case $paymenter::INVALID_ID_GET:
+			Orders::getOrder($_GET['order_id'])->setStatus("for_check");
+			print "تراکنش شما صحیح است ولی شماره خرید شما صیحیح نمیاباشد.";
+
+		default:
+			Orders::getOrder($_GET['order_id'])->setStatus("incomplete");
+			print "خطای غیر منتظره";
+	} 
+}
+
+```
 What's the problem
 ------------------
 You may say that you can do the job of all this classes in 10 lines of code , ofcourse you can , but after using this classes you will be able to to do it in 3 lines :). but it is not the main reason, trust me you will go to a nightmare when you want to handle connection errors , validate connection variables , validate request response and handle response errors , validate verify params and handle verfiy response and errors, and use all of this in another project or part of your app. 
