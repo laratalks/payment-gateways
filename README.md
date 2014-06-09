@@ -35,7 +35,7 @@ After successfull redirection to your website, you should verify user payment to
 
 What's the problem
 ------------------
-You may say that you can do the job of all this classes in 10 lines of code , ofcourse you can , but after using this classes you will be able to to do it in 3 lines :). but it's not the main reason, trust me you will go to a nightmare when you want to handle connection errors , validate connection variables , validate request response and handle response errors , validate verify params and handle verfiy response and errors, and use all of this in another project or part of your app. 
+You may say that you can do the job of all this classes in 10 lines of code , ofcourse you can , but after using this classes you will be able to to do it in 3 lines :). but it is not the main reason, trust me you will go to a nightmare when you want to handle connection errors , validate connection variables , validate request response and handle response errors , validate verify params and handle verfiy response and errors, and use all of this in another project or part of your app. 
 
 Above approach is definitely an anti-pattern , and simply breaks *Single Responsibility Pricnciple*  in *SOLID Method* for software development.
 
@@ -76,7 +76,7 @@ try
 catch (ParsiPaymentException $e)
 {
 
-	// easily get error message with it's error key : payline.invalid_api
+	// easily get error message with its error key : payline.invalid_api
 	$message =  Lang::get($e->getMessage());
 
 	// or make it really customized! these keys are the same
