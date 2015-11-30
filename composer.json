@@ -1,0 +1,26 @@
+{
+    "name": "jobinja/payment-gateways",
+    "description": "An abstract payment processor for Iranian payment providers, like Zarinpal, Payling and Saman bank.",
+    "license": "GNUv3",
+    "authors": [
+        {
+            "name": "Reza Shadman",
+            "email": "pcfeeler@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.9"
+    },
+    "require-dev" : {
+        "mockery/mockery": "~0.9.1",
+        "phpunit/phpunit": "~4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Jobinja\\PaymentGateways\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    }
+}
