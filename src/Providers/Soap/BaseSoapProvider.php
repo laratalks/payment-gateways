@@ -39,7 +39,7 @@ abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInte
     {
         $soap = $this->buildSoap($this->getWsdl(), $this->getOptions());
         $result = $soap->{$this->getRequestMethodName()}($this->serializePaymentRequest($needs));
-        return $this->handleRequestResponse($result);
+        return $this->handleRequestResponse($result)->getReturnUrl();
     }
 
     /**
@@ -52,7 +52,7 @@ abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInte
     {
         $soap = $this->buildSoap($this->getWsdl(), $this->getOptions());
         $result = $soap->{$this->getVerifyMethodName()}($this->serializeVerify($request));
-        return $this->handleVerifyResponse($result);
+        return $this->handleVerifyResponse($result)->isOk();
     }
 
     /**

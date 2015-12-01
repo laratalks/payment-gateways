@@ -73,6 +73,8 @@ class ZarinpalProvider extends BaseSoapProvider implements SoapProviderInterface
      */
     protected function serializeVerify(Request $request)
     {
-        // TODO: Implement serializeVerify() method.
+        return [
+            'Authority' => $request->get('Authority')
+        ];
     }
 }
