@@ -43,3 +43,21 @@ if (!function_exists('resolve_value')) {
         return $value instanceof \Closure ? $value() : $value;
     }
 }
+
+if (!function_exists('studly_case')) {
+    /**
+     * Make an string studly.
+     *
+     * @param $string
+     * @return string
+     */
+    function studly_case($string)
+    {
+        static $cache = [];
+        if (isset($cache[$string])) {
+            return $cache[$string];
+        }
+
+        return $cache[$string] = str_replace(' ', '', ucwords(str_replace(['_', '-'], ' ', $string)));
+    }
+}

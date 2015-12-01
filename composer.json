@@ -9,7 +9,9 @@
         }
     ],
     "require": {
-        "php": ">=5.5.9"
+        "php": ">=5.5.9",
+        "symfony/http-foundation": "^3.0",
+        "guzzlehttp/guzzle": "^6.1"
     },
     "require-dev" : {
         "mockery/mockery": "~0.9.1",

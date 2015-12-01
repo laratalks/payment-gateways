@@ -12,6 +12,13 @@ class GatewayManager implements GatewayFactoryInterface
     protected $providers = [];
 
     /**
+     * On events
+     *
+     * @var array
+     */
+    protected $events = [];
+
+    /**
      * Default provider.
      *
      * @var string
@@ -39,26 +46,28 @@ class GatewayManager implements GatewayFactoryInterface
     }
 
     /**
-     * @param          $driverName
+     * Register a new provider
+     *
+     * @param          $providerName
      * @param \Closure $builder
      */
-    public function extend($driverName, \Closure $builder)
+    public function extend($providerName, \Closure $builder)
     {
-        $this->customs[$driverName] = $builder;
+        $this->customs[$providerName] = $builder;
     }
 
     /**
      * Get provider for given name.
      *
      * @param null $name
-     * @return mixed
+     * @return Processor
      */
     public function provider($name = null)
     {
         $name = $name ?: $this->getDefaultProvider();
 
         if (!isset($this->providers[$name])) {
-            $this->providers[$name] = $this->make($name);
+            $this->providers[$name] = new Processor($this, $this->providers[$name], $this->config);
         }
 
         return $this->providers[$name];
@@ -105,5 +114,38 @@ class GatewayManager implements GatewayFactoryInterface
         }
 
         throw new \InvalidArgumentException('No creator found for "'.$what.'" payment gateway provider."');
+    }
+
+    /**
+     * Call from provider
+     *
+     * @param       $name
+     * @param array $arguments
+     * @return mixed
+     */
+    public function __call($name, $arguments = [])
+    {
+        return call_user_func_array([$this->provider(), $name], $arguments);
+    }
+
+    /**
+     * on event resolver
+     *
+     * @param          $event
+     * @param \Closure $resolver
+     */
+    public function on($event, \Closure $resolver)
+    {
+        $this->events[$event][] = $resolver;
+    }
+
+    /**
+     * Get after events
+     *
+     * @return array
+     */
+    public function getEvents()
+    {
+        return $this->events;
     }
 }

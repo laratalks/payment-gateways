@@ -5,7 +5,7 @@ use Jobinja\PaymentGateways\PaymentRequestNeeds;
 use Jobinja\PaymentGateways\Providers\Soap\ZarinpalProvider;
 
 $config = [
-    'provider' => 'zarinpal_soap',
+    'default' => 'zarinpal_soap',
     'zarinpal_soap' => [
         'MerchantID' => '123456'
     ]
