@@ -22,6 +22,7 @@ $manager->extend('zarinpal_soap', function ($config) {
     return new ZarinpalProvider(array_get($config, 'zarinpal_soap', []));
 });
 
+// Listen on action events
 // Useful for frameworks and CMS-es which allows overriding
 // behaviours by changing state of objects.
 $manager->on(Events::REQUEST_PAYMENT_URL_BEFORE, function (PaymentRequestNeeds $needs) {

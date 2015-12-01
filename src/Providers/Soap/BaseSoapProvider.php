@@ -2,12 +2,101 @@
 
 namespace Jobinja\PaymentGateways\Providers\Soap;
 
+use Jobinja\PaymentGateways\Exceptions\InvalidArgumentException;
 use Jobinja\PaymentGateways\PaymentRequestNeeds;
+use Jobinja\PaymentGateways\PaymentRequestResponse;
 use Jobinja\PaymentGateways\Providers\BaseProvider;
+use Jobinja\PaymentGateways\VerifyResponse;
 use SoapClient;
+use Symfony\Component\HttpFoundation\Request;
 
 abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInterface
 {
+    /**
+     * Config array
+     *
+     * @var array
+     */
+    protected $config = [];
+
+    /**
+     * BaseSoapProvider constructor.
+     *
+     * @param array $config
+     */
+    public function __construct(array $config)
+    {
+        $this->config = $config;
+    }
+
+    /**
+     * Call endpoint and get response.
+     *
+     * @param \Jobinja\PaymentGateways\PaymentRequestNeeds $needs
+     * @return mixed
+     */
+    public function callAndGetReturnUrl(PaymentRequestNeeds $needs)
+    {
+        $soap = $this->buildSoap($this->getWsdl(), $this->getOptions());
+        $result = $soap->{$this->getRequestMethodName()}($this->serializePaymentRequest($needs));
+        return $this->handleRequestResponse($result);
+    }
+
+    /**
+     * Call and verify given request
+     *
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return \Jobinja\PaymentGateways\VerifyResponse
+     */
+    public function callAndVerify(Request $request)
+    {
+        $soap = $this->buildSoap($this->getWsdl(), $this->getOptions());
+        $result = $soap->{$this->getVerifyMethodName()}($this->serializeVerify($request));
+        return $this->handleVerifyResponse($result);
+    }
+
+    /**
+     * Get request method name
+     *
+     * @return string
+     */
+    public function getRequestMethodName()
+    {
+        $methodName = array_get($this->config, 'request_method_name', null);
+        if (null === $methodName) {
+            throw new InvalidArgumentException("No request method name set in config.");
+        }
+        return $methodName;
+    }
+
+    /**
+     * Get verify method name
+     *
+     * @return string
+     */
+    public function getVerifyMethodName()
+    {
+        $methodName = array_get($this->config, 'verify_method_name', null);
+        if (null === $methodName) {
+            throw new InvalidArgumentException('No verify method name set in config.');
+        }
+        return $methodName;
+    }
+
+    /**
+     * Get wsdl endpoint
+     *
+     * @return string
+     */
+    public function getWsdl()
+    {
+        $wsdl = array_get($this->config, 'wsdl', null);
+        if (null == $wsdl) {
+            throw new InvalidArgumentException('No wsdl endpoint given at config.');
+        }
+        return $wsdl;
+    }
+
     /**
      * Default options for soap.
      *
@@ -19,64 +108,46 @@ abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInte
     }
 
     /**
-     * Call endpoint and get response.
+     * Build soap client
      *
-     * @param \Jobinja\PaymentGateways\PaymentRequestNeeds $needs
-     * @return mixed
-     */
-    public function callAndGetReturnUrl(PaymentRequestNeeds $needs)
-    {
-        $soap = $this->buildSoap($this->getEndpoint(), $this->getOptions());
-        $result = $soap->{$this->getRequestMethodName()}($this->serialize($needs));
-        return $result;
-    }
-
-    /**
-     * Serialize payment request needs.
-     *
-     * @param \Jobinja\PaymentGateways\PaymentRequestNeeds $needs
-     * @return mixed
-     */
-    protected abstract function serialize(PaymentRequestNeeds $needs);
-
-    /**
-     * Build soap client.
-     *
-     * @param       $endpoint
+     * @param       $wsdl
      * @param array $options
      * @return \SoapClient
      */
-    protected function buildSoap($endpoint, $options = [])
+    protected function buildSoap($wsdl, array $options = [])
     {
-        return new SoapClient($endpoint, $options);
+        return new SoapClient($wsdl, $options);
     }
 
     /**
-     * Call and verify based on current request
+     * Handle request response
+     *
+     * @param \stdClass $result
+     * @return PaymentRequestResponse
      */
-    public function callAndVerify()
-    {
-        // TODO: Implement callAndVerify() method.
-    }
+    protected abstract function handleRequestResponse(\stdClass $result);
 
     /**
-     * Get endpoint address
+     * Handle verify response
+     *
+     * @param \stdClass $result
+     * @return VerifyResponse
      */
-    public function getEndpoint()
-    {
-        // TODO: Implement getEndpoint() method.
-    }
+    protected abstract function handleVerifyResponse(\stdClass $result);
 
     /**
-     * Get reque
+     * Get an array from the needs.
+     *
+     * @param \Jobinja\PaymentGateways\PaymentRequestNeeds $needs
+     * @return array
      */
-    public function getRequestMethodName()
-    {
-        // TODO: Implement getRequestMethodName() method.
-    }
+    protected abstract function serializePaymentRequest(PaymentRequestNeeds $needs);
 
-    public function getVerifyMethodName()
-    {
-        // TODO: Implement getVerifyMethodName() method.
-    }
+    /**
+     * Serialize symfony request
+     *
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @return array
+     */
+    protected abstract function serializeVerify(Request $request);
 }
