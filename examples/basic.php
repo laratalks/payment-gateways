@@ -1,9 +1,12 @@
 <?php
 
+use Jobinja\PaymentGateways\Events;
 use Jobinja\PaymentGateways\GatewayManager;
 use Jobinja\PaymentGateways\PaymentRequestNeeds;
 use Jobinja\PaymentGateways\Providers\Soap\ZarinpalProvider;
 
+// Provide config for each provider in a single array and pass that to the
+// manager array.
 $config = [
     'default' => 'zarinpal_soap',
     'zarinpal_soap' => [
@@ -11,20 +14,39 @@ $config = [
     ]
 ];
 
-
+// The facade to all abilities
 $manager = new GatewayManager($config);
 
+// Register a custom gateway provider
 $manager->extend('zarinpal_soap', function ($config) {
     return new ZarinpalProvider(array_get($config, 'zarinpal_soap', []));
 });
 
-$requestNeeds = new PaymentRequestNeeds();
-$requestNeeds->setAmount(1000);
-$requestNeeds->setReturnUrl('http://localhost:8000/handle_return?order_id=12323');
-$requestNeeds->setCustomAttribute('Email', 'email@123.com');
-$requestNeeds->setCustomAttribute('Mobile', '091222');
-$requestNeeds->setCustomAttribute('Description', 'This is description');
+// Useful for frameworks and CMS-es which allows overriding
+// behaviours by changing state of objects.
+$manager->on(Events::REQUEST_PAYMENT_URL_BEFORE, function (PaymentRequestNeeds $needs) {
+    $needs->setAmount(500);
+});
+
+// Hook the events from calls
+// you can log request coming from your provider or whatever
+$manager->on(Events::VERIFY_BEFORE, function ($request) {
+    // Log request etc...
+});
+
+// Get a custom provider
+// Swap provider if it is not healthy by pinging a test url
+// if it fails in given time periods for "connect" and "download"
+$provider = $manager->provider('zarinpal_soap')
+    ->swapOnPingFailure('payline_rest', 5, 10);
+
+// Set order specs and get the right payment redirect url
+// from the endpoint
+$paymentUrl = $provider->withAmount(50000)
+        ->withReturnUrl('http://jobinja.ir/handle_payments?order_id=TysuR&trans_id=Ousdi')
+        ->withCustomAttribute('Email', 'reza@jobinja.ir')
+        ->getPaymentUrl();
 
 
-$provider = $manager->provider('zarinpal_soap');
-$returnUrl = $provider->callAndGetReturnUrl($requestNeeds);
+/** WHEN PROVIDER CALLS YOU */
+$result = $provider->verify();

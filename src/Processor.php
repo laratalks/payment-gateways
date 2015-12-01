@@ -52,6 +52,8 @@ class Processor
      */
     public function withAmount($amount)
     {
+        // As changing the state of current request need may cause unexpected
+        // behaviour, we try to keep the immutablity.
         $obj = clone $this;
         $obj->getRequestNeeds()->setAmount($amount);
         return $obj;
@@ -107,12 +109,16 @@ class Processor
     {
         $needs = $needs ?: $this->requestNeeds;
 
+        // These events are handled right before calling the endpoint
+        // if one of the handler's returned false we will stop.
         if (!$this->runClosuresForEvent(Events::REQUEST_PAYMENT_URL_BEFORE, $needs)) {
             return false;
         }
 
         $result = $this->provider->callAndGetReturnUrl($needs);
 
+        // These events are handled right after calling the endpoint
+        // if one of the handler's returned false we will stop.
         if (!$this->runClosuresForEvent(Events::REQUEST_PAYMENT_URL_AFTER, $result, $needs)) {
             return false;
         }
@@ -128,10 +134,13 @@ class Processor
      */
     protected function runClosuresForEvent($eventName)
     {
+        // Remove $eventName from callable's args.
         $args = array_shift($args = func_get_args());
+
         foreach (array_get($this->manager->getEvents(), []) as $event) {
-            call_user_func_array($event, $args);
-            if ($event === false) {
+            // Call the listener of the event
+            $res = call_user_func_array($event, $args);
+            if ($res === false) {
                 return false;
             }
         }
@@ -147,7 +156,10 @@ class Processor
      */
     public function verify(Request $request = null)
     {
-        if (!$this->runClosuresForEvent(Events::VERIFY_BEFORE, $request = $request ?: Request::createFromGlobals())) {
+        // We use symfony request for our verifying logic
+        $request = $request = $request ?: Request::createFromGlobals();
+
+        if (!$this->runClosuresForEvent(Events::VERIFY_BEFORE, $request)) {
             return false;
         }
 
