@@ -1,6 +1,6 @@
 <?php
 
-namespace Jobinja\PaymentGateways\Exceptions;
+namespace Laratalks\PaymentGateways\Exceptions;
 
 
 interface PaymentGatewayVerifyExceptionInterface extends PaymentGatewayExceptionInterface

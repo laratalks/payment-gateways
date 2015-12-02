@@ -1,6 +1,6 @@
 <?php
 
-namespace Jobinja\PaymentGateways;
+namespace Laratalks\PaymentGateways;
 
 class GatewayManager implements GatewayFactoryInterface
 {
@@ -40,7 +40,8 @@ class GatewayManager implements GatewayFactoryInterface
     public function __construct(array $config)
     {
         $this->config = $config;
-        if ($defaultProvider = array_get($this->config, 'provider') === null) {
+
+        if ($this->defaultProvider = array_get($this->config, 'provider') === null) {
             throw new \InvalidArgumentException('No default provider given, try setting "provider" on config array.');
         }
     }
@@ -93,6 +94,7 @@ class GatewayManager implements GatewayFactoryInterface
     {
         if (isset($this->customs[$what])) {
             $closure = $this->customs[$what];
+
             return $closure(array_get($this->config, $what, []));
         }
 
@@ -107,13 +109,13 @@ class GatewayManager implements GatewayFactoryInterface
      */
     protected function callInsideCreator($what)
     {
-        $method = 'call'.ucfirst($what).'Creator';
+        $method = 'call' . ucfirst($what) . 'Creator';
 
         if (method_exists($this, $method)) {
             return $this->{$method}();
         }
 
-        throw new \InvalidArgumentException('No creator found for "'.$what.'" payment gateway provider."');
+        throw new \InvalidArgumentException('No creator found for "' . $what . '" payment gateway provider."');
     }
 
     /**

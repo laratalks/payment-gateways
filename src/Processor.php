@@ -1,13 +1,13 @@
 <?php
 
-namespace Jobinja\PaymentGateways;
+namespace Laratalks\PaymentGateways;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\RequestOptions;
-use Jobinja\PaymentGateways\Providers\ProviderInterface;
+use Laratalks\PaymentGateways\Providers\ProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class Processor
@@ -18,7 +18,7 @@ class Processor
     protected $requestNeeds;
 
     /**
-     * @var \Jobinja\PaymentGateways\GatewayManager
+     * @var \Laratalks\PaymentGateways\GatewayManager
      */
     protected $manager;
 
@@ -32,9 +32,9 @@ class Processor
     /**
      * Processor constructor.
      *
-     * @param \Jobinja\PaymentGateways\GatewayManager              $manager
-     * @param \Jobinja\PaymentGateways\Providers\ProviderInterface $provider
-     * @param array                                                $config
+     * @param \Laratalks\PaymentGateways\GatewayManager $manager
+     * @param \Laratalks\PaymentGateways\Providers\ProviderInterface $provider
+     * @param array $config
      */
     public function __construct(GatewayManager $manager, ProviderInterface $provider, array $config = [])
     {
@@ -56,6 +56,7 @@ class Processor
         // behaviour, we try to keep the immutablity.
         $obj = clone $this;
         $obj->getRequestNeeds()->setAmount($amount);
+
         return $obj;
     }
 
@@ -69,6 +70,7 @@ class Processor
     {
         $obj = clone $this;
         $obj->getRequestNeeds()->setReturnUrl($returnUrl);
+
         return $obj;
     }
 
@@ -83,6 +85,7 @@ class Processor
     {
         $obj = clone $this;
         $obj->getRequestNeeds()->setCustomAttribute($name, $value);
+
         return $obj;
     }
 
@@ -96,13 +99,14 @@ class Processor
     {
         $obj = clone $this;
         $obj->getRequestNeeds()->setCustomAttributes($attrs);
+
         return $obj;
     }
 
     /**
      * Get payment url
      *
-     * @param \Jobinja\PaymentGateways\PaymentRequestNeeds|null $needs
+     * @param \Laratalks\PaymentGateways\PaymentRequestNeeds|null $needs
      * @return mixed
      */
     public function getPaymentUrl(PaymentRequestNeeds $needs = null)
@@ -175,7 +179,7 @@ class Processor
     /**
      * Get request needs
      *
-     * @return \Jobinja\PaymentGateways\PaymentRequestNeeds
+     * @return \Laratalks\PaymentGateways\PaymentRequestNeeds
      */
     public function getRequestNeeds()
     {
@@ -185,12 +189,13 @@ class Processor
     /**
      * Set request needs
      *
-     * @param \Jobinja\PaymentGateways\PaymentRequestNeeds $needs
+     * @param \Laratalks\PaymentGateways\PaymentRequestNeeds $needs
      * @return $this
      */
     public function setRequestNeeds(PaymentRequestNeeds $needs)
     {
         $this->requestNeeds = $needs;
+
         return $this;
     }
 
@@ -210,7 +215,7 @@ class Processor
      * @param     $swapTo
      * @param int $connectTimeout
      * @param int $timeout
-     * @return $this|\Jobinja\PaymentGateways\Processor
+     * @return $this|\Laratalks\PaymentGateways\Processor
      */
     public function swapOnPingFailure($swapTo, $connectTimeout = 15, $timeout = 30)
     {
@@ -239,8 +244,9 @@ class Processor
             $client = new Client();
             $client->get($url, [
                 RequestOptions::CONNECT_TIMEOUT => $connectTimeout,
-                RequestOptions::TIMEOUT         => $timeout
+                RequestOptions::TIMEOUT => $timeout
             ]);
+
             return true;
         } catch (ServerException $e) {
             return false;

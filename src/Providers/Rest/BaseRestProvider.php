@@ -1,8 +1,8 @@
 <?php
 
-namespace Jobinja\PaymentGateways\Providers\Rest;
+namespace Laratalks\PaymentGateways\Providers\Rest;
 
-use Jobinja\PaymentGateways\Providers\BaseProvider;
+use Laratalks\PaymentGateways\Providers\BaseProvider;
 
 class BaseRestProvider extends BaseProvider
 {

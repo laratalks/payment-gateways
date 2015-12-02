@@ -1,8 +1,8 @@
 <?php
 
-namespace Jobinja\PaymentGateways;
+namespace Laratalks\PaymentGateways;
 
-use Jobinja\PaymentGateways\Providers\ProviderInterface;
+use Laratalks\PaymentGateways\Providers\ProviderInterface;
 
 interface GatewayFactoryInterface
 {

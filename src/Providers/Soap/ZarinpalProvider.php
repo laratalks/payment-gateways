@@ -1,12 +1,12 @@
 <?php
 
-namespace Jobinja\PaymentGateways\Providers\Soap;
+namespace Laratalks\PaymentGateways\Providers\Soap;
 
 
-use Jobinja\PaymentGateways\Exceptions\InvalidArgumentException;
-use Jobinja\PaymentGateways\PaymentRequestNeeds;
-use Jobinja\PaymentGateways\PaymentRequestResponse;
-use Jobinja\PaymentGateways\VerifyResponse;
+use Laratalks\PaymentGateways\Exceptions\InvalidArgumentException;
+use Laratalks\PaymentGateways\PaymentRequestNeeds;
+use Laratalks\PaymentGateways\PaymentRequestResponse;
+use Laratalks\PaymentGateways\VerifyResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class ZarinpalProvider extends BaseSoapProvider implements SoapProviderInterface
@@ -37,7 +37,7 @@ class ZarinpalProvider extends BaseSoapProvider implements SoapProviderInterface
     /**
      * Get an array from the needs.
      *
-     * @param \Jobinja\PaymentGateways\PaymentRequestNeeds $needs
+     * @param \Laratalks\PaymentGateways\PaymentRequestNeeds $needs
      * @return array
      */
     protected function serializePaymentRequest(PaymentRequestNeeds $needs)

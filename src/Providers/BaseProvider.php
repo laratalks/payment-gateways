@@ -1,6 +1,6 @@
 <?php
 
-namespace Jobinja\PaymentGateways\Providers;
+namespace Laratalks\PaymentGateways\Providers;
 
 abstract class BaseProvider implements ProviderInterface
 {

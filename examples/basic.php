@@ -1,9 +1,9 @@
 <?php
 
-use Jobinja\PaymentGateways\Events;
-use Jobinja\PaymentGateways\GatewayManager;
-use Jobinja\PaymentGateways\PaymentRequestNeeds;
-use Jobinja\PaymentGateways\Providers\Soap\ZarinpalProvider;
+use Laratalks\PaymentGateways\Events;
+use Laratalks\PaymentGateways\GatewayManager;
+use Laratalks\PaymentGateways\PaymentRequestNeeds;
+use Laratalks\PaymentGateways\Providers\Soap\ZarinpalProvider;
 
 // Provide config for each provider in a single array and pass that to the
 // manager array.

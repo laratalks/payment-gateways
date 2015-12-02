@@ -1,8 +1,8 @@
 <?php
 
-namespace Jobinja\PaymentGateways\Providers;
+namespace Laratalks\PaymentGateways\Providers;
 
-use Jobinja\PaymentGateways\PaymentRequestNeeds;
+use Laratalks\PaymentGateways\PaymentRequestNeeds;
 use Symfony\Component\HttpFoundation\Request;
 
 interface ProviderInterface
@@ -10,7 +10,7 @@ interface ProviderInterface
     /**
      * Call endpoint and get return url
      *
-     * @param \Jobinja\PaymentGateways\PaymentRequestNeeds $needs
+     * @param \Laratalks\PaymentGateways\PaymentRequestNeeds $needs
      * @return string
      */
     public function callAndGetReturnUrl(PaymentRequestNeeds $needs);

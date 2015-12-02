@@ -1,6 +1,6 @@
 <?php
 
-namespace Jobinja\PaymentGateways\Exceptions;
+namespace Laratalks\PaymentGateways\Exceptions;
 
 class PaymentGatewayBadRequestException extends PaymentGatewayResponseException implements PaymentGatewayExceptionInterface
 {

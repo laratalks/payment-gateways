@@ -1,5 +1,5 @@
 {
-    "name": "jobinja/payment-gateways",
+    "name": "Laratalks/payment-gateways",
     "description": "An abstract payment processor for Iranian payment providers, like Zarinpal, Payling and Saman bank.",
     "license": "GNUv3",
     "authors": [
@@ -19,7 +19,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Jobinja\\PaymentGateways\\": "src/"
+            "Laratalks\\PaymentGateways\\": "src/"
         },
         "files": [
             "src/helpers.php"

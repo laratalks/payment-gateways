@@ -4,9 +4,9 @@ if (function_exists('array_get')) {
     /**
      * Array get
      *
-     * @param array     $array
+     * @param array $array
      * @param           $key
-     * @param null      $default
+     * @param null $default
      * @return mixed
      */
     function array_get(array $array, $key, $default = null)
@@ -20,7 +20,7 @@ if (function_exists('array_get')) {
         }
 
         foreach (explode('.', $key) as $segment) {
-            if (! is_array($array) || ! array_key_exists($segment, $array)) {
+            if (!is_array($array) || !array_key_exists($segment, $array)) {
                 return resolve_value($default);
             }
 

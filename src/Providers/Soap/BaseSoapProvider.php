@@ -1,12 +1,12 @@
 <?php
 
-namespace Jobinja\PaymentGateways\Providers\Soap;
+namespace Laratalks\PaymentGateways\Providers\Soap;
 
-use Jobinja\PaymentGateways\Exceptions\InvalidArgumentException;
-use Jobinja\PaymentGateways\PaymentRequestNeeds;
-use Jobinja\PaymentGateways\PaymentRequestResponse;
-use Jobinja\PaymentGateways\Providers\BaseProvider;
-use Jobinja\PaymentGateways\VerifyResponse;
+use Laratalks\PaymentGateways\Exceptions\InvalidArgumentException;
+use Laratalks\PaymentGateways\PaymentRequestNeeds;
+use Laratalks\PaymentGateways\PaymentRequestResponse;
+use Laratalks\PaymentGateways\Providers\BaseProvider;
+use Laratalks\PaymentGateways\VerifyResponse;
 use SoapClient;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -32,7 +32,7 @@ abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInte
     /**
      * Call endpoint and get response.
      *
-     * @param \Jobinja\PaymentGateways\PaymentRequestNeeds $needs
+     * @param \Laratalks\PaymentGateways\PaymentRequestNeeds $needs
      * @return mixed
      */
     public function callAndGetReturnUrl(PaymentRequestNeeds $needs)
@@ -46,7 +46,7 @@ abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInte
      * Call and verify given request
      *
      * @param \Symfony\Component\HttpFoundation\Request $request
-     * @return \Jobinja\PaymentGateways\VerifyResponse
+     * @return \Laratalks\PaymentGateways\VerifyResponse
      */
     public function callAndVerify(Request $request)
     {
@@ -138,7 +138,7 @@ abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInte
     /**
      * Get an array from the needs.
      *
-     * @param \Jobinja\PaymentGateways\PaymentRequestNeeds $needs
+     * @param \Laratalks\PaymentGateways\PaymentRequestNeeds $needs
      * @return array
      */
     protected abstract function serializePaymentRequest(PaymentRequestNeeds $needs);

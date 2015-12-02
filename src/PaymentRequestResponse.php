@@ -1,6 +1,6 @@
 <?php
 
-namespace Jobinja\PaymentGateways;
+namespace Laratalks\PaymentGateways;
 
 class PaymentRequestResponse
 {
