@@ -12,27 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 class ZarinpalProvider extends BaseSoapProvider implements SoapProviderInterface
 {
 
-    /**
-     * Handle request response
-     *
-     * @param \stdClass $result
-     * @return PaymentRequestResponse
-     */
-    protected function handleRequestResponse(\stdClass $result)
-    {
-        // TODO: Implement handleRequestResponse() method.
-    }
-
-    /**
-     * Handle verify response
-     *
-     * @param \stdClass $result
-     * @return VerifyResponse
-     */
-    protected function handleVerifyResponse(\stdClass $result)
-    {
-        // TODO: Implement handleVerifyResponse() method.
-    }
 
     /**
      * Get an array from the needs.
@@ -66,15 +45,47 @@ class ZarinpalProvider extends BaseSoapProvider implements SoapProviderInterface
     }
 
     /**
-     * Serialize symfony request
-     *
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @return array
+     * {@inheritdoc}
      */
-    protected function serializeVerify(Request $request)
+    protected function serializeVerify($payload)
     {
-        return [
-            'Authority' => $request->get('Authority')
-        ];
+        if ($payload instanceof Request) {
+            return [
+                'Authority' => $payload->get('Authority')
+            ];
+        }
+
+    }
+
+    /**
+     * Handle request response
+     *
+     * @param $result
+     * @return \Laratalks\PaymentGateways\Providers\PaymentRequestResponse
+     */
+    protected function handleRequestResponse($result)
+    {
+        // TODO: Implement handleRequestResponse() method.
+    }
+
+    /**
+     * Handle verify response
+     *
+     * @param $result
+     * @return \Laratalks\PaymentGateways\Providers\VerifyResponse
+     */
+    protected function handleVerifyResponse($result)
+    {
+        // TODO: Implement handleVerifyResponse() method.
+    }
+
+    /**
+     * Get gateway payment URL :)
+     *
+     * @return string
+     */
+    public function getPaymentUrl()
+    {
+        // TODO: Implement getPaymentUrl() method.
     }
 }

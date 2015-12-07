@@ -16,12 +16,12 @@ interface ProviderInterface
     public function callAndGetReturnUrl(PaymentRequestNeeds $needs);
 
     /**
-     * Call and verify for given symfony request.
+     * Call and verify for given payload
      *
-     * @param \Symfony\Component\HttpFoundation\Request $request
+     * @param array|\Symfony\Component\HttpFoundation\Request $payload
      * @return string
      */
-    public function callAndVerify(Request $request);
+    public function callAndVerify($payload);
 
     /**
      * Get an option from config
@@ -31,4 +31,11 @@ interface ProviderInterface
      * @return string
      */
     public function getFromConfig($key, $def = null);
+
+    /**
+     * Get gateway payment URL :)
+     *
+     * @return string
+     */
+    public function getPaymentUrl();
 }

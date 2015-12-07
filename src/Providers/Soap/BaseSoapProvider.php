@@ -43,12 +43,9 @@ abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInte
     }
 
     /**
-     * Call and verify given request
-     *
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @return \Laratalks\PaymentGateways\VerifyResponse
+     * {@inheritdoc}
      */
-    public function callAndVerify(Request $request)
+    public function callAndVerify($request)
     {
         $soap = $this->buildSoap($this->getWsdl(), $this->getOptions());
         $result = $soap->{$this->getVerifyMethodName()}($this->serializeVerify($request));
@@ -118,36 +115,4 @@ abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInte
     {
         return new SoapClient($wsdl, $options);
     }
-
-    /**
-     * Handle request response
-     *
-     * @param \stdClass $result
-     * @return PaymentRequestResponse
-     */
-    protected abstract function handleRequestResponse(\stdClass $result);
-
-    /**
-     * Handle verify response
-     *
-     * @param \stdClass $result
-     * @return VerifyResponse
-     */
-    protected abstract function handleVerifyResponse(\stdClass $result);
-
-    /**
-     * Get an array from the needs.
-     *
-     * @param \Laratalks\PaymentGateways\PaymentRequestNeeds $needs
-     * @return array
-     */
-    protected abstract function serializePaymentRequest(PaymentRequestNeeds $needs);
-
-    /**
-     * Serialize symfony request
-     *
-     * @param \Symfony\Component\HttpFoundation\Request $request
-     * @return array
-     */
-    protected abstract function serializeVerify(Request $request);
 }
