@@ -9,8 +9,8 @@ return [
 
         'payline' => [
             'api' => '',
-            'gateway_send_url' => '',
-            'gateway_verify_url' => '',
+            'gateway_send_url' => 'http://payline.ir/payment/gateway-send',
+            'gateway_verify_url' => 'http://payline.ir/payment/gateway-result-second',
             'formatted_payment_url' => "http://payline.ir/payment/gateway-%d"
         ]
 
