@@ -11,6 +11,10 @@ if (function_exists('array_get')) {
      */
     function array_get(array $array, $key, $default = null)
     {
+        if ($default instanceof \Exception) {
+            throw $default;    
+        }
+        
         if (is_null($key)) {
             return $array;
         }
