@@ -3,9 +3,10 @@
 namespace Laratalks\PaymentGateways\Providers\Rest;
 
 use GuzzleHttp\Client;
+use Laratalks\PaymentGateways\PaymentRequestNeeds;
 use Laratalks\PaymentGateways\Providers\BaseProvider;
 
-class BaseRestProvider extends BaseProvider
+abstract class BaseRestProvider extends BaseProvider
 {
     /**
      * @var array
@@ -21,5 +22,7 @@ class BaseRestProvider extends BaseProvider
     {
         return new Client($config);
     }
+
+
 
 }
