@@ -5,12 +5,17 @@ if (function_exists('array_get')) {
      * Array get
      *
      * @param array $array
-     * @param           $key
+     * @param  $key
      * @param null $default
      * @return mixed
+     * @throws \Exception
      */
     function array_get(array $array, $key, $default = null)
     {
+        if ($default instanceof \Exception) {
+            throw $default;    
+        }
+        
         if (is_null($key)) {
             return $array;
         }
@@ -44,6 +49,7 @@ if (!function_exists('resolve_value')) {
     }
 }
 
+
 if (!function_exists('studly_case')) {
     /**
      * Make an string studly.
@@ -61,3 +67,4 @@ if (!function_exists('studly_case')) {
         return $cache[$string] = str_replace(' ', '', ucwords(str_replace(['_', '-'], ' ', $string)));
     }
 }
+
