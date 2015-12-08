@@ -10,11 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class PaylineProvider extends BaseRestProvider
 {
-
-    const GATEWAY_SEND_URL = 'http://payline.ir/payment/gateway-send';
-    const GATEWAY_VERIFY_URL = 'http://payline.ir/payment/gateway-result-second';
-    const PROVIDER_NAME = 'Payline';
-
     protected $paymentId;
 
     /**
