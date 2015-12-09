@@ -8,6 +8,7 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\RequestOptions;
 use Laratalks\PaymentGateways\Providers\ProviderInterface;
+use Laratalks\PaymentGateways\ValueObjects\Events;
 use Symfony\Component\HttpFoundation\Request;
 
 class Processor
@@ -106,7 +107,7 @@ class Processor
     /**
      * Get payment url
      *
-     * @param \Laratalks\PaymentGateways\PaymentRequestNeeds|null $needs
+     * @param \Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds|null $needs
      * @return mixed
      */
     public function getPaymentUrl(PaymentRequestNeeds $needs = null)
@@ -179,7 +180,7 @@ class Processor
     /**
      * Get request needs
      *
-     * @return \Laratalks\PaymentGateways\PaymentRequestNeeds
+     * @return \Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds
      */
     public function getRequestNeeds()
     {
@@ -189,7 +190,7 @@ class Processor
     /**
      * Set request needs
      *
-     * @param \Laratalks\PaymentGateways\PaymentRequestNeeds $needs
+     * @param \Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds $needs
      * @return $this
      */
     public function setRequestNeeds(PaymentRequestNeeds $needs)

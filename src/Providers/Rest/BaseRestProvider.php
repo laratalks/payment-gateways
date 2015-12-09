@@ -3,7 +3,7 @@
 namespace Laratalks\PaymentGateways\Providers\Rest;
 
 use GuzzleHttp\Client;
-use Laratalks\PaymentGateways\PaymentRequestNeeds;
+use Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds;
 use Laratalks\PaymentGateways\Providers\BaseProvider;
 
 abstract class BaseRestProvider extends BaseProvider

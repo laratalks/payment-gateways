@@ -1,6 +1,6 @@
 <?php
 
-namespace Laratalks\PaymentGateways;
+namespace Laratalks\PaymentGateways\ValueObjects;
 
 class Events
 {

@@ -1,8 +1,8 @@
 <?php
 
-use Laratalks\PaymentGateways\Events;
+use Laratalks\PaymentGateways\ValueObjects\Events;
 use Laratalks\PaymentGateways\GatewayManager;
-use Laratalks\PaymentGateways\PaymentRequestNeeds;
+use Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds;
 use Laratalks\PaymentGateways\Providers\Soap\ZarinpalProvider;
 
 // Provide config for each provider in a single array and pass that to the

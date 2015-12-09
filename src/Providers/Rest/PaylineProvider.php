@@ -3,7 +3,7 @@ namespace Laratalks\PaymentGateways\Providers\Rest;
 
 use Laratalks\PaymentGateways\Exceptions\InvalidArgumentException;
 use Laratalks\PaymentGateways\Exceptions\PaymentGatewayResponseException;
-use Laratalks\PaymentGateways\PaymentRequestNeeds;
+use Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds;
 use Laratalks\PaymentGateways\Providers\PaymentRequestResponse;
 use Laratalks\PaymentGateways\Providers\VerifyResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,7 +15,7 @@ class PaylineProvider extends BaseRestProvider
     /**
      * Call endpoint and get return url
      *
-     * @param \Laratalks\PaymentGateways\PaymentRequestNeeds $needs
+     * @param \Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds $needs
      * @return string
      * @throws PaymentGatewayResponseException
      */
