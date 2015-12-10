@@ -6,6 +6,7 @@ use Laratalks\PaymentGateways\Exceptions\PaymentGatewayResponseException;
 use Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds;
 use Laratalks\PaymentGateways\Providers\PaymentRequestResponse;
 use Laratalks\PaymentGateways\Providers\VerifyResponse;
+use Laratalks\PaymentGateways\ValueObjects\PaymentTransaction;
 use Symfony\Component\HttpFoundation\Request;
 
 class PaylineProvider extends BaseRestProvider
@@ -13,11 +14,7 @@ class PaylineProvider extends BaseRestProvider
     protected $paymentId;
 
     /**
-     * Call endpoint and get return url
-     *
-     * @param \Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds $needs
-     * @return string
-     * @throws PaymentGatewayResponseException
+     * {@inheritdoc}
      */
     public function callAndGetReturnUrl(PaymentRequestNeeds $needs)
     {
@@ -35,8 +32,7 @@ class PaylineProvider extends BaseRestProvider
         }
 
 
-        header('Location: ' . $this->getPaymentUrl(), true);
-        die;
+        redirect_url($this->getPaymentUrl());
     }
 
 
@@ -54,17 +50,25 @@ class PaylineProvider extends BaseRestProvider
      */
     public function callAndVerify($payload)
     {
+        $serializedPayload = $this->serializeVerify($payload);
+
         $request = $this
             ->getHttpClient()
             ->post(
                 $this->getFromConfig('providers.payline.gateway_verify_url'),
-                $this->serializeVerify($payload)
+                $serializedPayload
             );
 
         if ($request->getBody()->getContents() !== 1) {
             throw new PaymentGatewayResponseException;
         }
 
+        return new PaymentTransaction(
+            'trans_id',
+            $serializedPayload['trans_id'],
+            'id_get',
+            $serializedPayload['id_get']
+        );
     }
 
     /**

@@ -2,16 +2,16 @@
 
 namespace Laratalks\PaymentGateways\Providers;
 
-use Laratalks\PaymentGateways\PaymentRequestNeeds;
-use Symfony\Component\HttpFoundation\Request;
+use Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds;
+use Laratalks\PaymentGateways\ValueObjects\PaymentTransaction;
 
 interface ProviderInterface
 {
     /**
      * Call endpoint and get return url
      *
-     * @param \Laratalks\PaymentGateways\PaymentRequestNeeds $needs
-     * @return string
+     * @param PaymentRequestNeeds $needs
+     * @return string|mixed
      */
     public function callAndGetReturnUrl(PaymentRequestNeeds $needs);
 
@@ -19,7 +19,7 @@ interface ProviderInterface
      * Call and verify for given payload
      *
      * @param array|\Symfony\Component\HttpFoundation\Request $payload
-     * @return string
+     * @return PaymentTransaction
      */
     public function callAndVerify($payload);
 

@@ -27,6 +27,23 @@ class PaymentTransaction implements \JsonSerializable
      */
     protected $paymentField;
 
+
+    /**
+     * PaymentTransaction constructor.
+     *
+     * @param null $transField
+     * @param null $transId
+     * @param null $paymentField
+     * @param null $paymentId
+     */
+    public function __construct($transField = null, $transId = null, $paymentField = null, $paymentId = null)
+    {
+        $this->setTransactionField($transField);
+        $this->setTransactionId($transId);
+        $this->setPaymentField($paymentField);
+        $this->setPaymentId($paymentId);
+    }
+
     /**
      * @return mixed
      */
@@ -38,7 +55,7 @@ class PaymentTransaction implements \JsonSerializable
     /**
      * @param mixed $transactionId
      */
-    public function setTransactionId($transactionId)
+    protected function setTransactionId($transactionId)
     {
         $this->transactionId = $transactionId;
     }
@@ -54,7 +71,7 @@ class PaymentTransaction implements \JsonSerializable
     /**
      * @param mixed $transactionField
      */
-    public function setTransactionField($transactionField)
+    protected function setTransactionField($transactionField)
     {
         $this->transactionField = $transactionField;
     }
@@ -70,7 +87,7 @@ class PaymentTransaction implements \JsonSerializable
     /**
      * @param mixed $paymentId
      */
-    public function setPaymentId($paymentId)
+    protected function setPaymentId($paymentId)
     {
         $this->paymentId = $paymentId;
     }
@@ -86,7 +103,7 @@ class PaymentTransaction implements \JsonSerializable
     /**
      * @param mixed $paymentField
      */
-    public function setPaymentField($paymentField)
+    protected function setPaymentField($paymentField)
     {
         $this->paymentField = $paymentField;
     }
@@ -97,7 +114,18 @@ class PaymentTransaction implements \JsonSerializable
      */
     public function toArray()
     {
+        $array = [];
 
+        if (null !== $this->getPaymentField()) {
+            $array[$this->getPaymentField()] = $this->getPaymentId();
+        }
+
+        if (null !== $this->getTransactionField()) {
+            $array[$this->getTransactionField()] = $this->getTransactionId();
+        }
+
+
+        return $array;
     }
 
     /**

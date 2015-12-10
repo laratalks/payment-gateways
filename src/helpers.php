@@ -68,3 +68,15 @@ if (!function_exists('studly_case')) {
     }
 }
 
+
+if (! function_exists('redirect_url')) {
+
+    /**
+     * Redirect agent to another url
+     * @param $url
+     */
+    function redirect_url($url) {
+        header('Location: ' . $url, true);
+        die;
+    }
+}

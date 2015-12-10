@@ -2,7 +2,8 @@
 
 namespace Laratalks\PaymentGateways\Providers;
 
-use Laratalks\PaymentGateways\PaymentRequestNeeds;
+use Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds;
+use Laratalks\PaymentGateways\ValueObjects\PaymentTransaction;
 use Symfony\Component\HttpFoundation\Request;
 
 abstract class BaseProvider implements ProviderInterface
@@ -31,7 +32,7 @@ abstract class BaseProvider implements ProviderInterface
      * Handle verify response
      *
      * @param $result
-     * @return VerifyResponse
+     * @return PaymentTransaction
      */
     protected abstract function handleVerifyResponse($result);
 
