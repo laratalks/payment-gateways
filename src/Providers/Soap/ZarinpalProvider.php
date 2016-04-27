@@ -2,90 +2,137 @@
 
 namespace Laratalks\PaymentGateways\Providers\Soap;
 
-
-use Laratalks\PaymentGateways\Exceptions\InvalidArgumentException;
-use Laratalks\PaymentGateways\PaymentRequestNeeds;
-use Laratalks\PaymentGateways\PaymentRequestResponse;
-use Laratalks\PaymentGateways\VerifyResponse;
+use Laratalks\PaymentGateways\Exceptions\InvalidPaymentNeedsException;
+use Laratalks\PaymentGateways\Exceptions\PaymentGatewayBadRequestException;
+use Laratalks\PaymentGateways\ValueObjects\PaymentNeeds;
+use Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds;
+use Laratalks\PaymentGateways\ValueObjects\PaymentResponse;
+use Laratalks\PaymentGateways\ValueObjects\PaymentTransaction;
+use Laratalks\PaymentGateways\ValueObjects\ZarinpalPaymentRequestNeeds;
 use Symfony\Component\HttpFoundation\Request;
 
 class ZarinpalProvider extends BaseSoapProvider implements SoapProviderInterface
 {
 
+    public function getName()
+    {
+        return 'zarinpal';
+    }
 
     /**
-     * Get an array from the needs.
-     *
-     * @param \Laratalks\PaymentGateways\PaymentRequestNeeds $needs
+     * @param PaymentNeeds|ZarinpalPaymentRequestNeeds $needs
+     * @return array
+     * @throws InvalidPaymentNeedsException
+     */
+    protected function serializePaymentRequest(PaymentNeeds $needs)
+    {
+        return [
+            'MerchantID' => $this->getProviderConfig('merchant_id'),
+            'Amount' => $needs->getAmount(),
+            'CallbackURL' => $needs->getReturnUrl(),
+            'Description' => $needs->get('description'),
+            'Email' => $needs->get('email'),
+            'Mobile' => $needs->get('mobile')
+        ];
+    }
+
+
+    /**
+     * @param PaymentNeeds $needs
      * @return array
      */
-    protected function serializePaymentRequest(PaymentRequestNeeds $needs)
+    protected function serializeVerifyPayload(PaymentNeeds $needs)
     {
-        $array = [
-            'MerchantID' => array_get($this->config, 'MerchantID', function () {
-                throw new InvalidArgumentException('No MerchantID set for Zarinpal.');
-            }),
-            'Amount' => $needs->getAmount(),
-            'CallbackURL' => $needs->getReturnUrl()
+        return [
+            'MerchantID' => $this->getProviderConfig('merchant_id'),
+            'Amount' => $needs->get('amount'),
+            'Authority' => $needs->get('authority')
         ];
-
-        if ($email = $needs->getCustomAttribute('Email')) {
-            $array['Email'] = $email;
-        }
-
-        if ($desc = $needs->getCustomAttribute('Description')) {
-            $array['Description'] = $desc;
-        }
-
-        if ($mob = $needs->getCustomAttribute('Mobile')) {
-            $array['Mobile'] = $mob;
-        }
-
-        return $array;
     }
 
     /**
-     * {@inheritdoc}
+     * @param PaymentRequestNeeds $needs
+     * @return PaymentResponse
+     * @throws InvalidPaymentNeedsException
+     * @throws PaymentGatewayBadRequestException
      */
-    protected function serializeVerify($payload)
+    public function callPaymentRequest(PaymentRequestNeeds $needs)
     {
-        if ($payload instanceof Request) {
-            return [
-                'Authority' => $payload->get('Authority')
-            ];
+        if (!$needs->isVerified()) {
+            throw new InvalidPaymentNeedsException;
         }
 
+
+        $response = $this->getClient()->PaymentRequest($this->serializePaymentRequest($needs));
+
+        // Handle response and set Authority field
+        return $this->createPaymentRequestResponse($response);
     }
 
     /**
-     * Handle request response
-     *
-     * @param $result
-     * @return \Laratalks\PaymentGateways\Providers\PaymentRequestResponse
+     * @param PaymentNeeds $needs
+     * @return PaymentResponse
+     * @throws InvalidPaymentNeedsException
      */
-    protected function handleRequestResponse($result)
+    public function callVerifyRequest(PaymentNeeds $needs)
     {
-        // TODO: Implement handleRequestResponse() method.
+        if (!$needs->isVerified()) {
+            throw new InvalidPaymentNeedsException;
+        }
+
+        $response = $this->getClient()->PaymentVerification($this->serializeVerifyPayload($needs));
+
+        return $this->createPaymentVerifyResponse($response);
+    }
+
+
+    /**
+     * @param Request|null $request
+     * @return bool
+     */
+    public function checkPaymentStatusIsOK($request = null)
+    {
+        if ($request === null) {
+            $request = Request::createFromGlobals();
+        }
+
+        return $request->get('Status') === 'OK';
     }
 
     /**
-     * Handle verify response
-     *
-     * @param $result
-     * @return \Laratalks\PaymentGateways\Providers\VerifyResponse
+     * @param $authority
+     * @return mixed
      */
-    protected function handleVerifyResponse($result)
+    protected function generatePaymentUrl($authority)
     {
-        // TODO: Implement handleVerifyResponse() method.
+        return sprintf($this->getProviderConfig('gateway_send_url'), $authority);
     }
 
     /**
-     * Get gateway payment URL :)
-     *
-     * @return string
+     * @param $response
+     * @return PaymentResponse
+     * @throws PaymentGatewayBadRequestException
      */
-    public function getPaymentUrl()
+    protected function createPaymentRequestResponse($response)
     {
-        // TODO: Implement getPaymentUrl() method.
+        if ($response->Status !== 100) {
+            throw new PaymentGatewayBadRequestException();
+        }
+
+        $paymentResponse = new PaymentResponse();
+        $paymentResponse->set('authority', $response->Authority);
+        $paymentResponse->set('payment_url', $this->generatePaymentUrl($response->Authority));
+        
+        return $paymentResponse;
+    }
+
+    protected function createPaymentVerifyResponse($response)
+    {
+        $paymentResponse = new PaymentResponse();
+        $paymentResponse
+            ->set('status', $response->Status)
+            ->set('ref_id', $response->RefId);
+        
+        return $paymentResponse;
     }
 }

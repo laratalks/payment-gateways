@@ -1,6 +1,6 @@
 <?php
 
-if (function_exists('array_get')) {
+if (! function_exists('array_get')) {
     /**
      * Array get
      *
@@ -8,7 +8,7 @@ if (function_exists('array_get')) {
      * @param  $key
      * @param null $default
      * @return mixed
-     * @throws \Exception
+     * @throws null
      */
     function array_get(array $array, $key, $default = null)
     {

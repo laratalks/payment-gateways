@@ -2,53 +2,28 @@
 
 namespace Laratalks\PaymentGateways\Providers;
 
-use Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds;
-use Laratalks\PaymentGateways\ValueObjects\PaymentTransaction;
-use Symfony\Component\HttpFoundation\Request;
 
 abstract class BaseProvider implements ProviderInterface
 {
-    /**
-     * Get an option from config
-     *
-     * @param      $key
-     * @param null $def
-     * @return string
-     */
-    public function getFromConfig($key, $def = null)
+    protected $configs;
+    
+    public function __construct($configs)
     {
-        return array_get($this->config, $key, $def);
+        $this->configs = $configs;
     }
 
-    /**
-     * Handle request response
-     *
-     * @param $result
-     * @return PaymentRequestResponse
-     */
-    protected abstract function handleRequestResponse($result);
-
-    /**
-     * Handle verify response
-     *
-     * @param $result
-     * @return PaymentTransaction
-     */
-    protected abstract function handleVerifyResponse($result);
-
-    /**
-     * Get an array from the needs.
-     *
-     * @param PaymentRequestNeeds $needs
-     * @return array
-     */
-    protected abstract function serializePaymentRequest(PaymentRequestNeeds $needs);
-
-    /**
-     * Serialize Verify request payload
-     *
-     * @param array|Request $payload
-     * @return array
-     */
-    protected abstract function serializeVerify($payload);
+    
+    protected function getProviderConfig($key, $default = null)
+    {
+        return array_get($this->configs['providers'][$this->getName()], $key, $default);
+    }
+    
+    
+    protected function getConfig($key, $default = null)
+    {
+        return array_get($this->configs, $key, $default);
+    }
+    
+    
+    
 }

@@ -3,26 +3,34 @@
 namespace Laratalks\PaymentGateways\Providers\Rest;
 
 use GuzzleHttp\Client;
-use Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds;
 use Laratalks\PaymentGateways\Providers\BaseProvider;
 
 abstract class BaseRestProvider extends BaseProvider
 {
-    /**
-     * @var array
-     */
-    protected $config;
 
-    public function __construct(array $config)
+    public function getClient(array $config = [])
     {
-        $this->config = $config;
-    }
+        // set proxy if enabled
+        if ($this->getConfig('proxy.enable') === true) {
+            $config['proxy'][$this->getConfig('proxy.type')] = sprintf(
+                "tcp://%s:%d",
+                $this->getConfig('proxy.host'),
+                $this->getConfig('proxy.port')
+            );
 
-    protected function getHttpClient(array $config = [])
-    {
+            if ($this->getConfig('proxy.use_credentials') === true) {
+                $config['proxy'][$this->getConfig('proxy.type')] = sprintf(
+                    "tcp://%s:%s@%s:%d",
+                    $this->getConfig('proxy.username'),
+                    $this->getConfig('proxy.password'),
+                    $this->getConfig('proxy.host'),
+                    $this->getConfig('proxy.port')
+                );
+            }
+        }
+
         return new Client($config);
     }
-
 
 
 }

@@ -12,18 +12,5 @@ interface SoapProviderInterface extends ProviderInterface
      * @return string
      */
     public function getWsdl();
-
-    /**
-     * Get request method name
-     *
-     * @return string
-     */
-    public function getRequestMethodName();
-
-    /**
-     * Get verify method name
-     *
-     * @return string
-     */
-    public function getVerifyMethodName();
+    
 }

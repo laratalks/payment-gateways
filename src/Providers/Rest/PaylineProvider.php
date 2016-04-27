@@ -3,59 +3,72 @@ namespace Laratalks\PaymentGateways\Providers\Rest;
 
 use Laratalks\PaymentGateways\Exceptions\InvalidArgumentException;
 use Laratalks\PaymentGateways\Exceptions\PaymentGatewayResponseException;
+use Laratalks\PaymentGateways\ValueObjects\PaymentNeeds;
 use Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds;
-use Laratalks\PaymentGateways\Providers\PaymentRequestResponse;
-use Laratalks\PaymentGateways\Providers\VerifyResponse;
+use Laratalks\PaymentGateways\ValueObjects\PaymentResponse;
 use Laratalks\PaymentGateways\ValueObjects\PaymentTransaction;
 use Symfony\Component\HttpFoundation\Request;
 
 class PaylineProvider extends BaseRestProvider
 {
-    protected $paymentId;
+    public function getName()
+    {
+        return 'payline';
+    }
 
     /**
      * {@inheritdoc}
      */
-    public function callAndGetReturnUrl(PaymentRequestNeeds $needs)
+    public function callPaymentRequest(PaymentRequestNeeds $needs)
     {
-        $request = $this
-            ->getHttpClient()
-            ->post(
-                $this->getFromConfig('providers.payline.gateway_send_url'),
-                $this->serializePaymentRequest($needs)
-            );
 
-        $this->paymentId = $request->getBody()->getContents();
+        $response = $this->getClient()->request(
+            'POST',
+            $this->getProviderConfig('gateway_send_url'),
+            [
+                'form_params' => $this->serializePaymentRequest($needs)
+            ]
+        );
 
-        if ($this->paymentId <= 0) {
-            throw new PaymentGatewayResponseException($this->paymentId, 'payline');
+
+        return $this->createPaymentRequestResponse($response->getBody()->getContents());
+    }
+
+    public function createPaymentRequestResponse($results)
+    {
+        if ($results <= 0) {
+            throw new PaymentGatewayResponseException;
         }
 
+        $response = new PaymentResponse();
+        $response->set('payment_id', $results);
+        $response->set('payment_url', $this->generatePaymentUrl($results));
 
-        redirect_url($this->getPaymentUrl());
+        return $response;
     }
 
 
     /**
+     * @param $paymentId
      * @return string
      */
-    public function getPaymentUrl()
+    public function generatePaymentUrl($paymentId)
     {
-        return sprintf($this->getFromConfig('providers.payline.formatted_payment_url'), $this->paymentId);
+        return sprintf($this->getProviderConfig('gateway_payment_url'), $paymentId);
     }
 
 
     /**
      * {@inheritdoc}
      */
-    public function callAndVerify($payload)
+    public function callVerifyRequest(PaymentNeeds $paymentNeeds)
     {
-        $serializedPayload = $this->serializeVerify($payload);
+        $serializedPayload = $this->serializeVerify($paymentNeeds);
 
         $request = $this
-            ->getHttpClient()
+            ->getClient()
             ->post(
-                $this->getFromConfig('providers.payline.gateway_verify_url'),
+                $this->getProviderConfig('gateway_verify_url'),
                 $serializedPayload
             );
 
@@ -80,7 +93,7 @@ class PaylineProvider extends BaseRestProvider
     protected function serializePaymentRequest(PaymentRequestNeeds $needs)
     {
         return [
-            'api' => $this->getFromConfig('providers.payline.api'),
+            'api' => $this->getProviderConfig('api'),
             'amount' => $needs->getAmount(),
             'redirect' => urlencode($needs->getReturnUrl())
         ];
@@ -94,7 +107,7 @@ class PaylineProvider extends BaseRestProvider
      */
     protected function serializeVerify($payload)
     {
-        $apiKey = $this->getFromConfig('providers.payline.api');
+        $apiKey = $this->getProviderConfig('api');
 
         if ($payload instanceof Request) {
             return  [
@@ -115,25 +128,4 @@ class PaylineProvider extends BaseRestProvider
         throw new InvalidArgumentException('Verify payload required.');
     }
 
-    /**
-     * Handle request response
-     *
-     * @param $result
-     * @return PaymentRequestResponse
-     */
-    protected function handleRequestResponse($result)
-    {
-        // TODO: Implement handleRequestResponse() method.
-    }
-
-    /**
-     * Handle verify response
-     *
-     * @param $result
-     * @return VerifyResponse
-     */
-    protected function handleVerifyResponse($result)
-    {
-        // TODO: Implement handleVerifyResponse() method.
-    }
 }

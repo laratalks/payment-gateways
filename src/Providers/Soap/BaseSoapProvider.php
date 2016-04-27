@@ -12,73 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInterface
 {
-    /**
-     * Config array
-     *
-     * @var array
-     */
-    protected $config = [];
-
-    /**
-     * BaseSoapProvider constructor.
-     *
-     * @param array $config
-     */
-    public function __construct(array $config)
-    {
-        $this->config = $config;
-    }
-
-    /**
-     * Call endpoint and get response.
-     *
-     * @param \Laratalks\PaymentGateways\PaymentRequestNeeds $needs
-     * @return mixed
-     */
-    public function callAndGetReturnUrl(PaymentRequestNeeds $needs)
-    {
-        $soap = $this->buildSoap($this->getWsdl(), $this->getOptions());
-        $result = $soap->{$this->getRequestMethodName()}($this->serializePaymentRequest($needs));
-        return $this->handleRequestResponse($result)->getReturnUrl();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function callAndVerify($request)
-    {
-        $soap = $this->buildSoap($this->getWsdl(), $this->getOptions());
-        $result = $soap->{$this->getVerifyMethodName()}($this->serializeVerify($request));
-        return $this->handleVerifyResponse($result)->isOk();
-    }
-
-    /**
-     * Get request method name
-     *
-     * @return string
-     */
-    public function getRequestMethodName()
-    {
-        $methodName = array_get($this->config, 'request_method_name', null);
-        if (null === $methodName) {
-            throw new InvalidArgumentException("No request method name set in config.");
-        }
-        return $methodName;
-    }
-
-    /**
-     * Get verify method name
-     *
-     * @return string
-     */
-    public function getVerifyMethodName()
-    {
-        $methodName = array_get($this->config, 'verify_method_name', null);
-        if (null === $methodName) {
-            throw new InvalidArgumentException('No verify method name set in config.');
-        }
-        return $methodName;
-    }
 
     /**
      * Get wsdl endpoint
@@ -87,10 +20,12 @@ abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInte
      */
     public function getWsdl()
     {
-        $wsdl = array_get($this->config, 'wsdl', null);
+        $wsdl = $this->getProviderConfig('wsdl');
+        
         if (null == $wsdl) {
             throw new InvalidArgumentException('No wsdl endpoint given at config.');
         }
+        
         return $wsdl;
     }
 
@@ -101,7 +36,20 @@ abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInte
      */
     protected function getOptions()
     {
-        return ['encoding' => 'utf-8'];
+        $options = ['encoding' => 'utf-8'];
+
+        if ($this->getConfig('proxy.enable') === true) {
+            $options['proxy_host'] = $this->getConfig('proxy.host');
+            $options['proxy_port'] = $this->getConfig('proxy.port');
+
+            if ($this->getConfig('proxy.use_credentials') === true) {
+                $options['proxy_login'] = $this->getConfig('proxy.username');
+                $options['proxy_password'] = $this->getConfig('proxy.password');
+            }
+        }
+
+
+        return $options;
     }
 
     /**
@@ -114,5 +62,10 @@ abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInte
     protected function buildSoap($wsdl, array $options = [])
     {
         return new SoapClient($wsdl, $options);
+    }
+    
+    public function getClient()
+    {
+        return $this->buildSoap($this->getWsdl(), $this->getOptions());
     }
 }
