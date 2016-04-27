@@ -1,14 +1,14 @@
 <?php
 
-namespace Jobinja\PaymentGateways;
+namespace Laratalks\PaymentGateways\ValueObjects;
 
-class PaymentRequestNeeds
+use Laratalks\PaymentGateways\Exceptions\InvalidArgumentException;
+use Laratalks\PaymentGateways\Exceptions\InvalidPaymentNeedsException;
+
+class PaymentRequestNeeds extends PaymentNeeds
 {
-    protected $amount;
-    protected $returnUrl;
-    protected $customAttrs = [];
-
-    public function __construct($amount = null, $returnUrl = null, array $customAttrs = [])
+    
+    public function __construct($amount = null, $returnUrl = null)
     {
         if (null !== $amount) {
             $this->setAmount($amount);
@@ -17,8 +17,6 @@ class PaymentRequestNeeds
         if (null !== $returnUrl) {
             $this->setReturnUrl($returnUrl);
         }
-
-        $this->setCustomAttributes($customAttrs);
     }
 
     public function setAmount($amount)
@@ -28,42 +26,45 @@ class PaymentRequestNeeds
             throw new \InvalidArgumentException('Amount can not be less or equal to zero.');
         }
 
-        $this->amount = $amount;
+        $this->setCustomAttribute('amount', $amount);
+
+
         return $this;
     }
 
     public function getAmount()
     {
-        return $this->amount;
+        if (!$this->has('amount')) {
+            throw new InvalidPaymentNeedsException('Amount required.');
+        }
+
+        return $this->getCustomAttribute('amount');
     }
 
     public function getReturnUrl()
     {
-        return $this->returnUrl;
+        if (!$this->has('return_url')) {
+            throw new InvalidPaymentNeedsException('Return Url required.');
+        }
+
+        return $this->getCustomAttribute('amount');
     }
 
     public function setReturnUrl($url)
     {
-        $this->returnUrl = (string) $url;
-    }
-
-    public function setCustomAttributes(array $attrs)
-    {
-        $this->customAttrs = $attrs;
-    }
-
-    public function setCustomAttribute($attr, $value)
-    {
-        $this->customAttrs[$attr] = $value;
-        return $this;
-    }
-
-    public function getCustomAttribute($key, $default = null)
-    {
-        if (null === $key) {
-            return $this->customAttrs;
+        if (! filter_var($url, FILTER_VALIDATE_URL)) {
+            throw new InvalidArgumentException('return url is not valid');
         }
 
-        return array_get($this->customAttrs, $key, resolve_value($default));
+        $this->setCustomAttribute('return_url', (string) $url);
+
+        return $this;
     }
+    
+    public function isVerified()
+    {
+        return $this->hasAll('amount', 'return_url');
+    }
+
+
 }

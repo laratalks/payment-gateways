@@ -1,13 +1,34 @@
 <?php
 
-namespace Jobinja\PaymentGateways\Providers\Soap;
+namespace Laratalks\PaymentGateways\Providers\Soap;
 
-use Jobinja\PaymentGateways\PaymentRequestNeeds;
-use Jobinja\PaymentGateways\Providers\BaseProvider;
+use Laratalks\PaymentGateways\Exceptions\InvalidArgumentException;
+use Laratalks\PaymentGateways\PaymentRequestNeeds;
+use Laratalks\PaymentGateways\PaymentRequestResponse;
+use Laratalks\PaymentGateways\Providers\BaseProvider;
+use Laratalks\PaymentGateways\VerifyResponse;
 use SoapClient;
+use Symfony\Component\HttpFoundation\Request;
 
 abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInterface
 {
+
+    /**
+     * Get wsdl endpoint
+     *
+     * @return string
+     */
+    public function getWsdl()
+    {
+        $wsdl = $this->getProviderConfig('wsdl');
+        
+        if (null == $wsdl) {
+            throw new InvalidArgumentException('No wsdl endpoint given at config.');
+        }
+        
+        return $wsdl;
+    }
+
     /**
      * Default options for soap.
      *
@@ -15,68 +36,36 @@ abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInte
      */
     protected function getOptions()
     {
-        return ['encoding' => 'utf-8'];
+        $options = ['encoding' => 'utf-8'];
+
+        if ($this->getConfig('proxy.enable') === true) {
+            $options['proxy_host'] = $this->getConfig('proxy.host');
+            $options['proxy_port'] = $this->getConfig('proxy.port');
+
+            if ($this->getConfig('proxy.use_credentials') === true) {
+                $options['proxy_login'] = $this->getConfig('proxy.username');
+                $options['proxy_password'] = $this->getConfig('proxy.password');
+            }
+        }
+
+
+        return $options;
     }
 
     /**
-     * Call endpoint and get response.
+     * Build soap client
      *
-     * @param \Jobinja\PaymentGateways\PaymentRequestNeeds $needs
-     * @return mixed
-     */
-    public function callAndGetReturnUrl(PaymentRequestNeeds $needs)
-    {
-        $soap = $this->buildSoap($this->getEndpoint(), $this->getOptions());
-        $result = $soap->{$this->getRequestMethodName()}($this->serialize($needs));
-        return $result;
-    }
-
-    /**
-     * Serialize payment request needs.
-     *
-     * @param \Jobinja\PaymentGateways\PaymentRequestNeeds $needs
-     * @return mixed
-     */
-    protected abstract function serialize(PaymentRequestNeeds $needs);
-
-    /**
-     * Build soap client.
-     *
-     * @param       $endpoint
+     * @param       $wsdl
      * @param array $options
      * @return \SoapClient
      */
-    protected function buildSoap($endpoint, $options = [])
+    protected function buildSoap($wsdl, array $options = [])
     {
-        return new SoapClient($endpoint, $options);
+        return new SoapClient($wsdl, $options);
     }
-
-    /**
-     * Call and verify based on current request
-     */
-    public function callAndVerify()
+    
+    public function getClient()
     {
-        // TODO: Implement callAndVerify() method.
-    }
-
-    /**
-     * Get endpoint address
-     */
-    public function getEndpoint()
-    {
-        // TODO: Implement getEndpoint() method.
-    }
-
-    /**
-     * Get reque
-     */
-    public function getRequestMethodName()
-    {
-        // TODO: Implement getRequestMethodName() method.
-    }
-
-    public function getVerifyMethodName()
-    {
-        // TODO: Implement getVerifyMethodName() method.
+        return $this->buildSoap($this->getWsdl(), $this->getOptions());
     }
 }

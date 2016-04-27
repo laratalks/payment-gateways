@@ -1,109 +1,153 @@
 <?php
 
-namespace Jobinja\PaymentGateways;
+namespace Laratalks\PaymentGateways;
+
+use Laratalks\PaymentGateways\Exceptions\InvalidProviderException;
+use Laratalks\PaymentGateways\Exceptions\PaymentGatewayException;
+use Laratalks\PaymentGateways\Providers\ProviderInterface;
+use Laratalks\PaymentGateways\Providers\Rest\PaylineProvider;
+use Laratalks\PaymentGateways\Providers\Soap\ZarinpalProvider;
 
 class GatewayManager implements GatewayFactoryInterface
 {
+
     /**
-     * Available providers.
-     *
+     * Default payment provider
+     * @var
+     */
+    protected $defaultProvider;
+
+    /**
+     * All available providers list
      * @var array
      */
     protected $providers = [];
 
     /**
-     * Default provider.
-     *
-     * @var string
-     */
-    protected $defaultProvider;
-
-    /**
-     * Custom not set providers.
-     *
+     * PaymentGateway configs
      * @var array
      */
-    protected $customs = [];
+    protected $configs;
 
-    /**
-     * GatewayManager constructor.
-     *
-     * @param array $config
-     */
     public function __construct(array $config)
     {
-        $this->config = $config;
-        if ($defaultProvider = array_get($this->config, 'provider') === null) {
-            throw new \InvalidArgumentException('No default provider given, try setting "provider" on config array.');
-        }
+
+        $this->setConfigs($config);
+        $this->setDefaultProvider($this->configs['default_provider']);
     }
 
     /**
-     * @param          $driverName
-     * @param \Closure $builder
+     * @param array $configs
+     * @throws PaymentGatewayException
      */
-    public function extend($driverName, \Closure $builder)
+    public function setConfigs(array $configs)
     {
-        $this->customs[$driverName] = $builder;
+        if (empty($configs)) {
+            throw new PaymentGatewayException();
+        }
+
+        $this->configs = $configs;
     }
 
     /**
-     * Get provider for given name.
+     * @return array
+     */
+    public function getConfigs()
+    {
+        return $this->configs;
+    }
+
+    /**
+     * Register a new provider
+     *
+     * @param $providerName
+     * @param \Closure $builder
+     * @return $this|void
+     * @throws InvalidProviderException
+     */
+    public function extend($providerName, \Closure $builder)
+    {
+        if (isset($this->providers[$providerName])) {
+            throw new InvalidProviderException;
+        }
+
+        $provider = call_user_func($builder);
+
+        if (!$provider instanceof ProviderInterface) {
+            throw new InvalidProviderException;
+        }
+
+
+        $this->providers[$providerName] = $provider;
+
+
+        return $this;
+    }
+
+    /**
+     * Get provider for given name
      *
      * @param null $name
-     * @return mixed
+     * @return ProviderInterface
      */
     public function provider($name = null)
     {
-        $name = $name ?: $this->getDefaultProvider();
-
-        if (!isset($this->providers[$name])) {
-            $this->providers[$name] = $this->make($name);
-        }
-
-        return $this->providers[$name];
+        return isset($this->providers[$name]) ? $this->providers[$name] : null;
     }
 
     /**
-     * Get default driver.
+     * Get default provider
      *
-     * @return string
+     * @return ProviderInterface
      */
     public function getDefaultProvider()
     {
         return $this->defaultProvider;
     }
 
-    /**
-     * Make
-     *
-     * @param $what
-     * @return mixed
-     */
-    protected function make($what)
+    public function setDefaultProvider($providerName)
     {
-        if (isset($this->customs[$what])) {
-            $closure = $this->customs[$what];
-            return $closure(array_get($this->config, $what, []));
+        if (!isset($this->providers[$providerName])) {
+            $this->defaultProvider = $this->createProvider($providerName);
+        } else {
+            $this->defaultProvider = $this->providers[$providerName];
         }
 
-        return $this->callInsideCreator($what);
+
+        return $this;
     }
 
     /**
-     * Call inside creator
-     *
-     * @param $what
+     * @param $name
+     * @return ProviderInterface
+     */
+    protected function createProvider($name)
+    {
+        switch ($name) {
+            case 'payline':
+                return new PaylineProvider($this->getConfigs());
+            case 'zarinpal':
+                return new ZarinpalProvider($this->getConfigs());
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * @param $name
+     * @param $arguments
      * @return mixed
      */
-    protected function callInsideCreator($what)
+    public function __call($name, $arguments)
     {
-        $method = 'call'.ucfirst($what).'Creator';
+        if (
+            !method_exists(__CLASS__, $name)
+            && $this->getDefaultProvider() instanceof ProviderInterface
+            && method_exists($this->getDefaultProvider(), $name) 
+        ) {
 
-        if (method_exists($this, $method)) {
-            return $this->{$method}();
+            return call_user_func_array([$this->getDefaultProvider(), $name], $arguments);
         }
-
-        throw new \InvalidArgumentException('No creator found for "'.$what.'" payment gateway provider."');
     }
+    
 }

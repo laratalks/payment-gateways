@@ -1,12 +1,16 @@
 <?php
 
-namespace Jobinja\PaymentGateways\Providers\Soap;
+namespace Laratalks\PaymentGateways\Providers\Soap;
 
-use Jobinja\PaymentGateways\Providers\ProviderInterface;
+use Laratalks\PaymentGateways\Providers\ProviderInterface;
 
 interface SoapProviderInterface extends ProviderInterface
 {
-    public function getEndpoint();
-    public function getRequestMethodName();
-    public function getVerifyMethodName();
+    /**
+     * Get wsdl endpoint
+     *
+     * @return string
+     */
+    public function getWsdl();
+    
 }

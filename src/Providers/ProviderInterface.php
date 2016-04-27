@@ -1,11 +1,28 @@
 <?php
 
-namespace Jobinja\PaymentGateways\Providers;
+namespace Laratalks\PaymentGateways\Providers;
 
-use Jobinja\PaymentGateways\PaymentRequestNeeds;
+use Laratalks\PaymentGateways\ValueObjects\PaymentNeeds;
+use Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds;
+use Laratalks\PaymentGateways\ValueObjects\PaymentResponse;
 
 interface ProviderInterface
 {
-    public function callAndGetReturnUrl(PaymentRequestNeeds $needs);
-    public function callAndVerify();
+    /**
+     * @return string
+     */
+    public function getName();
+    
+    /**
+     * @param PaymentRequestNeeds $needs
+     * @return PaymentResponse
+     */
+    public function callPaymentRequest(PaymentRequestNeeds $needs);
+
+    /**
+     * @param PaymentNeeds $needs
+     * @return PaymentResponse
+     */
+    public function callVerifyRequest(PaymentNeeds $needs);
+    
 }
