@@ -1,5 +1,5 @@
 {
-    "name": "Laratalks/payment-gateways",
+    "name": "laratalks/payment-gateways",
     "description": "An abstract payment processor for Iranian payment providers, like Zarinpal, Payling and Saman bank.",
     "keywords": ["payment", "payment gateway", "shaparak", "zarinpal", "payline"],
     "license": "GNUv3",
