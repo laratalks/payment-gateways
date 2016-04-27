@@ -90,7 +90,7 @@ class ZarinpalProvider extends BaseSoapProvider implements SoapProviderInterface
      * @param Request|null $request
      * @return bool
      */
-    public function checkPaymentStatusIsOK($request = null)
+    public static function checkPaymentStatusIsOK($request = null)
     {
         if ($request === null) {
             $request = Request::createFromGlobals();
