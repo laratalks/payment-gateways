@@ -4,6 +4,7 @@ namespace Laratalks\PaymentGateways\Providers\Soap;
 
 use Laratalks\PaymentGateways\Exceptions\InvalidPaymentNeedsException;
 use Laratalks\PaymentGateways\Exceptions\PaymentGatewayBadRequestException;
+use Laratalks\PaymentGateways\Exceptions\PaymentGatewayException;
 use Laratalks\PaymentGateways\ValueObjects\PaymentNeeds;
 use Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds;
 use Laratalks\PaymentGateways\ValueObjects\PaymentResponse;
@@ -73,9 +74,14 @@ class ZarinpalProvider extends BaseSoapProvider implements SoapProviderInterface
      * @param PaymentNeeds $needs
      * @return PaymentResponse
      * @throws InvalidPaymentNeedsException
+     * @throws PaymentGatewayException
      */
     public function callVerifyRequest(PaymentNeeds $needs)
     {
+        if (!static::checkPaymentStatusIsOK()) {
+            throw new PaymentGatewayException;
+        }
+        
         if (!$needs->isVerified()) {
             throw new InvalidPaymentNeedsException;
         }

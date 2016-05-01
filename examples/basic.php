@@ -125,8 +125,7 @@ $provider = $manager->provider('zarinpal');
 
 // payment verification
 if (
-    strtolower($_SERVER['REQUEST_METHOD']) === 'post' // zarinpal send verification data using POST method
-    && ZarinpalProvider::checkPaymentStatusIsOK() // check payment is OK
+    strtolower($_SERVER['REQUEST_METHOD']) === 'post'
 ) {
     // AUTHORITY comes from payment request, response and you save it before
     $verifyNeeds = new \Laratalks\PaymentGateways\ValueObjects\ZarinpalPaymentVerifyNeeds(1000, 'AUTHORITY');
