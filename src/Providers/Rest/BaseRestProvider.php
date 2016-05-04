@@ -7,7 +7,6 @@ use Laratalks\PaymentGateways\Providers\BaseProvider;
 
 abstract class BaseRestProvider extends BaseProvider
 {
-
     public function getClient(array $config = [])
     {
         // set proxy if enabled

@@ -14,22 +14,6 @@ abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInte
 {
 
     /**
-     * Get wsdl endpoint
-     *
-     * @return string
-     */
-    public function getWsdl()
-    {
-        $wsdl = $this->getProviderConfig('wsdl');
-        
-        if (null == $wsdl) {
-            throw new InvalidArgumentException('No wsdl endpoint given at config.');
-        }
-        
-        return $wsdl;
-    }
-
-    /**
      * Default options for soap.
      *
      * @return array
@@ -38,7 +22,7 @@ abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInte
     {
         $options = ['encoding' => 'utf-8'];
 
-        if ($this->getConfig('proxy.enable') === true) {
+        if ($this->getConfig('proxy.enabled') === true) {
             $options['proxy_host'] = $this->getConfig('proxy.host');
             $options['proxy_port'] = $this->getConfig('proxy.port');
 
@@ -63,7 +47,7 @@ abstract class BaseSoapProvider extends BaseProvider implements SoapProviderInte
     {
         return new SoapClient($wsdl, $options);
     }
-    
+
     public function getClient()
     {
         return $this->buildSoap($this->getWsdl(), $this->getOptions());

@@ -4,7 +4,9 @@ namespace Laratalks\PaymentGateways\Providers;
 
 use Laratalks\PaymentGateways\ValueObjects\PaymentNeeds;
 use Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds;
-use Laratalks\PaymentGateways\ValueObjects\PaymentResponse;
+use Laratalks\PaymentGateways\ValueObjects\PaymentRequestResponse;
+use Laratalks\PaymentGateways\ValueObjects\PaymentVerifyResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 interface ProviderInterface
 {
@@ -15,14 +17,15 @@ interface ProviderInterface
     
     /**
      * @param PaymentRequestNeeds $needs
-     * @return PaymentResponse
+     * @return PaymentRequestResponse
      */
     public function callPaymentRequest(PaymentRequestNeeds $needs);
 
     /**
      * @param PaymentNeeds $needs
-     * @return PaymentResponse
+     * @param Request $request
+     * @return PaymentVerifyResponse
      */
-    public function callVerifyRequest(PaymentNeeds $needs);
+    public function callVerifyRequest(PaymentNeeds $needs, Request $request = null);
     
 }

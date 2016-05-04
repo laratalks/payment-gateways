@@ -2,10 +2,11 @@
 
 namespace Laratalks\PaymentGateways;
 
+use Laratalks\PaymentGateways\Configs\Config;
 use Laratalks\PaymentGateways\Exceptions\InvalidProviderException;
 use Laratalks\PaymentGateways\Exceptions\PaymentGatewayException;
 use Laratalks\PaymentGateways\Providers\ProviderInterface;
-use Laratalks\PaymentGateways\Providers\Rest\PaylineProvider;
+use Laratalks\PaymentGateways\Providers\Rest\UpalProvider;
 use Laratalks\PaymentGateways\Providers\Soap\ZarinpalProvider;
 
 class GatewayManager implements GatewayFactoryInterface
@@ -29,10 +30,9 @@ class GatewayManager implements GatewayFactoryInterface
      */
     protected $configs;
 
-    public function __construct(array $config)
+    public function __construct(Config $config)
     {
-
-        $this->setConfigs($config);
+        $this->setConfigs($config->toArray());
         $this->setDefaultProvider($this->configs['default_provider']);
     }
 
@@ -124,10 +124,10 @@ class GatewayManager implements GatewayFactoryInterface
     protected function createProvider($name)
     {
         switch ($name) {
-            case 'payline':
-                return new PaylineProvider($this->getConfigs());
             case 'zarinpal':
                 return new ZarinpalProvider($this->getConfigs());
+            case 'upal':
+                return new UpalProvider($this->getConfigs());
             default:
                 return null;
         }

@@ -1,27 +1,29 @@
 <?php
 
+use Laratalks\PaymentGateways\Configs\Config;
+use Laratalks\PaymentGateways\Configs\ProviderConfig;
+use Laratalks\PaymentGateways\Configs\ProxyConfig;
 use Laratalks\PaymentGateways\GatewayManager;
 use Laratalks\PaymentGateways\Providers\ProviderInterface;
+use Laratalks\PaymentGateways\ValueObjects\PaymentNeeds;
 use Laratalks\PaymentGateways\ValueObjects\PaymentRequestNeeds;
+use Laratalks\PaymentGateways\ValueObjects\PaymentRequestResponse;
+use Laratalks\PaymentGateways\ValueObjects\PaymentVerifyResponse;
+use Symfony\Component\HttpFoundation\Request;
 
-// Provide config for each provider in a single array and pass that to the
-// manager array.
-$config = [
+$config = (new Config())
+    ->addProvider(new ProviderConfig('upal', 'fknnfgloshgwl353dkvjdoif'))
+    ->addProvider(new ProviderConfig('zarinpal', 'nafngwithtgngt'))
+    ->setDefaultProvider('upal');
 
-    'default_provider' => 'payline',
+$proxy = new ProxyConfig();
+$proxy->setType(ProxyConfig::TYPE_HTTP);
+$proxy->setHost('localhost');
+$proxy->setPort(8123);
+$proxy->setEnabled(true);
 
-    'providers' => [
 
-
-        'payline' => [
-            'api' => '',
-            'gateway_send_url' => 'http://payline.ir/payment/gateway-send',
-            'gateway_verify_url' => 'http://payline.ir/payment/gateway-result-second',
-            'formatted_payment_url' => "http://payline.ir/payment/gateway-%d"
-        ]
-
-    ]
-];
+$config->setProxy($proxy);
 
 
 // The facade to all abilities
@@ -33,30 +35,26 @@ $manager = new GatewayManager($config);
  */
 class ExampleProvider implements ProviderInterface
 {
-    /**
-     * @return string
-     */
+
     public function getName()
     {
-        // TODO: Implement getName() method.
+        return 'example';
     }
 
-    /**
-     * @param PaymentRequestNeeds $needs
-     * @return \Laratalks\PaymentGateways\ValueObjects\PaymentResponse
-     */
+
     public function callPaymentRequest(PaymentRequestNeeds $needs)
     {
-        // TODO: Implement callPaymentRequest() method.
+        // call payment request and get response
+        // you must  generate payment url
+        // for redirecting customer to payment  gateway
+        return new PaymentRequestResponse('PAYMENT_URL');
     }
 
-    /**
-     * @param \Laratalks\PaymentGateways\ValueObjects\PaymentNeeds $needs
-     * @return \Laratalks\PaymentGateways\ValueObjects\PaymentResponse
-     */
-    public function callVerifyRequest(\Laratalks\PaymentGateways\ValueObjects\PaymentNeeds $needs)
+
+    public function callVerifyRequest(PaymentNeeds $needs, Request $request = null)
     {
-        // TODO: Implement callVerifyRequest() method.
+        // verify the payment and return response
+        return new PaymentVerifyResponse('TRANSACTION_ID');
     }
 }
 
@@ -92,7 +90,7 @@ $manager->setDefaultProvider('example');
 $response = $manager->callPaymentRequest($requestNeeds);
 
 
-$verifyNeeds = new \Laratalks\PaymentGateways\ValueObjects\PaymentNeeds();
+$verifyNeeds = new PaymentNeeds();
 $verifyNeeds->set('amount', 1000);
 $verifyNeeds->set('payment_id', 15415648);
 
@@ -103,17 +101,25 @@ $response = $manager->callPaymentVerify($verifyNeeds);
 $provider = $manager->provider('zarinpal');
 
 // create payment request:
-$requestNeeds = new \Laratalks\PaymentGateways\ValueObjects\ZarinpalPaymentRequestNeeds(1000, 'http://some_url', 'some_description');
-// or
-$requestNeeds = new \Laratalks\PaymentGateways\ValueObjects\ZarinpalPaymentRequestNeeds();
+$requestNeeds = new PaymentRequestNeeds();
+
 $requestNeeds
     ->setAmount(1000)// required
     ->setReturnUrl('http://some_url')// required
-    ->setDescription('some description')// required
-    ->setMobile('MOBILE_NUMBER')// optional
-    ->setEmail('EMAIL_ADDRESS'); // optional
+    ->set('description', 'some description')// required
+    ->set('mobile', 'YOUR_PHONE_NUMBER')// optional
+    ->set('email', 'YOUR_EMAIL_ADDRESS'); // optional
 
 $response = $manager->provider('zarinpal')->callPaymentRequest($requestNeeds);
+
+$redirectUrl = $response->getPaymentUrl(); // each  request responses has  this method
+
+// save the Authority to database
+// we need that for payment verify
+$authority = $response->get('authority'); // zarinpal provider response has this filed too.
+
+// Redirect user to payment page
+header('Location: ' . $response->getPaymentUrl());
 
 // save response $data any where, you need these for payment verify
 
@@ -128,28 +134,25 @@ if (
     strtolower($_SERVER['REQUEST_METHOD']) === 'post'
 ) {
     // AUTHORITY comes from payment request, response and you save it before
-    $verifyNeeds = new \Laratalks\PaymentGateways\ValueObjects\ZarinpalPaymentVerifyNeeds(1000, 'AUTHORITY');
-    // or
-    $verifyNeeds = new \Laratalks\PaymentGateways\ValueObjects\ZarinpalPaymentVerifyNeeds();
+    $verifyNeeds = new PaymentNeeds();
     $verifyNeeds
-        ->setAmount(1000)
-        ->setAuthority('AUTHORITY');
+        ->set('amount', 1000)
+        ->set('authority', 'YOUR_AUTHORITY');
 
     $response = $provider->callVerifyRequest($verifyNeeds);
 
-    // $response variable contains `ref_id` and `status` properties
-    $transactionId = $response->get('ref_id');
-    $status = $response->get('status');
+    $transactionId = $response->getTransactionId(); // each verify response has this  method
+    $status = $response->get('status');   // zarinpal provider has status field too.
 
 }
 
 
 /**
  * Work with PaymentNeeds
- * every Request|Verify need extended `PaymentNeeds` class 
+ * every Request|Verify need extended `PaymentNeeds` class
  */
 
-$needs  = new \Laratalks\PaymentGateways\ValueObjects\PaymentNeeds();
+$needs = new PaymentNeeds();
 $needs->has('key'); //  false
 $needs->set('key', 'value');
 $needs->has('key'); //  true
